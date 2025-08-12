@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class TextEditorDialog extends StatefulWidget {
@@ -141,7 +140,7 @@ class _TextEditorDialogState extends State<TextEditorDialog> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 TextButton(
-                  onPressed: () => Get.back(),
+                  onPressed: () => Navigator.of(context).pop(),
                   child: const Text('Cancel'),
                 ),
                 ElevatedButton(
@@ -152,7 +151,7 @@ class _TextEditorDialogState extends State<TextEditorDialog> {
                       _textColor,
                       _fontWeight,
                     );
-                    Get.back();
+                    Navigator.of(context).pop();
                   },
                   child: const Text('Save'),
                 ),

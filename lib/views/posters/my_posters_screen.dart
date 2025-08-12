@@ -135,18 +135,19 @@ class _MyPostersScreenState extends State<MyPostersScreen> {
   }
 
   void _confirmDelete(String posterId) {
-    Get.dialog(
-      AlertDialog(
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
         title: const Text('Delete Poster'),
         content: const Text('Are you sure you want to delete this poster?'),
         actions: [
           TextButton(
-            onPressed: () => Get.back(),
+            onPressed: () => Navigator.of(context).pop(),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
-              Get.back();
+              Navigator.of(context).pop();
               _posterController.deletePoster(posterId);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -187,7 +188,7 @@ class _MyPostersScreenState extends State<MyPostersScreen> {
                           subtitle: Text('Deleted on ${poster.updatedAt.toString().split(' ')[0]}'),
                           trailing: ElevatedButton(
                             onPressed: () {
-                              Get.back();
+                              Navigator.of(context).pop();
                               _posterController.restorePoster(poster.posterId);
                             },
                             child: const Text('Restore'),

@@ -10,6 +10,7 @@ import '../templates/template_selection_screen.dart';
 import '../editor/poster_editor_screen.dart';
 import '../posters/my_posters_screen.dart';
 import '../profile/profile_screen.dart';
+import '../donation/donation_screen.dart';
 import '../../widgets/poster_card.dart';
 import '../../widgets/category_chip.dart';
 import '../../widgets/custom_bottom_nav.dart';
@@ -80,6 +81,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 case 'profile':
                   Get.to(() => const ProfileScreen());
                   break;
+                case 'donate':
+                  Get.to(() => const DonationScreen());
+                  break;
                 case 'settings':
                   Get.to(() => const ProfileScreen());
                   break;
@@ -92,6 +96,10 @@ class _HomeScreenState extends State<HomeScreen> {
               const PopupMenuItem(
                 value: 'profile',
                 child: Text('Profile'),
+              ),
+              const PopupMenuItem(
+                value: 'donate',
+                child: Text('Donate'),
               ),
               const PopupMenuItem(
                 value: 'settings',

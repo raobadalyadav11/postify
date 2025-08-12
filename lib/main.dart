@@ -9,7 +9,12 @@ import 'controllers/poster_controller.dart';
 import 'controllers/template_controller.dart';
 import 'controllers/notification_controller.dart';
 import 'controllers/editor_controller.dart';
+import 'controllers/ads_controller.dart';
+import 'controllers/payment_controller.dart';
 import 'services/connectivity_service.dart';
+import 'services/premium_service.dart';
+import 'services/offline_service.dart';
+import 'services/sync_service.dart';
 import 'views/splash_screen.dart';
 import 'constants/app_theme.dart';
 import 'services/firebase_service.dart';
@@ -28,6 +33,9 @@ void main() async {
   
   // Initialize Services
   Get.put(ConnectivityService());
+  Get.put(PremiumService());
+  Get.put(OfflineService());
+  Get.put(SyncService());
   
   // Initialize Controllers
   Get.put(AuthController());
@@ -35,6 +43,8 @@ void main() async {
   Get.put(PosterController());
   Get.put(NotificationController());
   Get.put(EditorController());
+  Get.put(AdsController());
+  Get.put(PaymentController());
   
   runApp(const PostifyApp());
 }

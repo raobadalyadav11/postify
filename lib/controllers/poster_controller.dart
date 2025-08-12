@@ -187,6 +187,17 @@ class PosterController extends GetxController {
   
   Future<String?> exportPoster(PosterModel poster, {String format = 'png'}) async {
     try {
+      // Show interstitial ad before export
+      try {
+        final adsController = Get.find();
+      if (adsController.isInterstitialAdLoaded) {
+          adsController.showInterstitialAd();
+          await Future.delayed(const Duration(seconds: 1));
+        }
+      } catch (e) {
+        // Ads controller not available
+      }
+      
       final directory = await getApplicationDocumentsDirectory();
       final fileName = '${poster.name}_${DateTime.now().millisecondsSinceEpoch}.$format';
       final filePath = '${directory.path}/$fileName';
