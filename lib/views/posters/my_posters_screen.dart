@@ -168,7 +168,8 @@ class _MyPostersScreenState extends State<MyPostersScreen> {
                 )
               : null,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         ),
         onChanged: (value) {
           if (_searchController != null) {
@@ -265,7 +266,7 @@ class _MyPostersScreenState extends State<MyPostersScreen> {
                         color: AppTheme.primaryColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(24),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.image_outlined,
                         size: 48,
                         color: AppTheme.primaryColor,
@@ -405,7 +406,7 @@ class _MyPostersScreenState extends State<MyPostersScreen> {
 
   void _showDeletedPosters() async {
     final deletedPosters = await _posterController.getDeletedPosters();
-    
+
     Get.bottomSheet(
       Container(
         height: 400,
@@ -430,7 +431,8 @@ class _MyPostersScreenState extends State<MyPostersScreen> {
                         final poster = deletedPosters[index];
                         return ListTile(
                           title: Text(poster.name),
-                          subtitle: Text('Deleted on ${poster.updatedAt.toString().split(' ')[0]}'),
+                          subtitle: Text(
+                              'Deleted on ${poster.updatedAt.toString().split(' ')[0]}'),
                           trailing: ElevatedButton(
                             onPressed: () {
                               Navigator.of(context).pop();

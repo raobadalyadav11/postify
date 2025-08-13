@@ -5,7 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import '../../controllers/poster_controller.dart';
 import '../../controllers/editor_controller.dart';
 import '../../constants/app_theme.dart';
-import '../../widgets/canvas_widget.dart';
+
+import '../../widgets/enhanced_canvas_widget.dart';
 import '../../widgets/editor_toolbar.dart';
 
 class PosterEditorScreen extends StatefulWidget {
@@ -33,7 +34,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen>
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
     _animationController.forward();
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _editorController.initializeEditor(_posterController.currentPoster);
     });
@@ -213,7 +214,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen>
                 ),
               );
             }
-            
+
             return InteractiveViewer(
               minScale: 0.5,
               maxScale: 3.0,
@@ -223,13 +224,16 @@ class _PosterEditorScreenState extends State<PosterEditorScreen>
                   child: Container(
                     constraints: BoxConstraints(
                       maxWidth: maxWidth * 0.8,
-                      maxHeight: maxWidth * 0.8 * (controller.canvasHeight / controller.canvasWidth),
+                      maxHeight: maxWidth *
+                          0.8 *
+                          (controller.canvasHeight / controller.canvasWidth),
                     ),
-                    child: CanvasWidget(
-                      poster: _posterController.currentPoster,
-                      onUpdate: (customizations) {
-                        // Handle canvas updates
-                      },
+                    child: EnhancedCanvasWidget(
+                      elements: controller.elements,
+                      onElementTap: controller.selectElement,
+                      onElementMove: controller.moveElement,
+                      canvasWidth: controller.canvasWidth,
+                      canvasHeight: controller.canvasHeight,
                     ),
                   ),
                 ),
@@ -270,7 +274,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen>
 
   Widget _buildBottomToolbar(bool isTablet) {
     if (isTablet) return const SizedBox.shrink();
-    
+
     return Container(
       height: 60,
       decoration: BoxDecoration(
@@ -396,7 +400,8 @@ class _PosterEditorScreenState extends State<PosterEditorScreen>
       final updatedPoster = poster.copyWith(
         customizations: {
           ...poster.customizations,
-          'elements': _editorController.elements.map((e) => e.toJson()).toList(),
+          'elements':
+              _editorController.elements.map((e) => e.toJson()).toList(),
           'canvasSize': {
             'width': _editorController.canvasWidth,
             'height': _editorController.canvasHeight,
@@ -528,7 +533,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen>
                 color: AppTheme.successColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(30),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.check_circle,
                 color: AppTheme.successColor,
                 size: 32,

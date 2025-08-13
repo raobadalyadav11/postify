@@ -12,10 +12,12 @@ class AuthController extends GetxController {
   final Rx<UserModel?> _currentUser = Rx<UserModel?>(null);
   final RxBool _isLoading = false.obs;
   final RxBool _isAuthenticated = false.obs;
+  final RxBool _isFirstTime = true.obs;
   
   UserModel? get currentUser => _currentUser.value;
   bool get isLoading => _isLoading.value;
   bool get isAuthenticated => _isAuthenticated.value;
+  bool get isFirstTime => _isFirstTime.value;
   
   @override
   void onInit() {
@@ -29,6 +31,9 @@ class AuthController extends GetxController {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userId = prefs.getString('userId');
+      final hasSeenOnboarding = prefs.getBool('hasSeenOnboarding') ?? false;
+      
+      _isFirstTime.value = !hasSeenOnboarding;
       
       if (userId != null) {
         final userDoc = await _firebaseService.getDocument(
@@ -153,9 +158,11 @@ class AuthController extends GetxController {
     
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('userId', userId);
+    await prefs.setBool('hasSeenOnboarding', true);
     
     _currentUser.value = user;
     _isAuthenticated.value = true;
+    _isFirstTime.value = false;
   }
   
   Future<bool> signInWithPhone(String phoneNumber) async {

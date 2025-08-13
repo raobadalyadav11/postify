@@ -48,6 +48,15 @@ dependencies:
   intl: ^0.18.1
   connectivity_plus: ^5.0.2
   
+  # Theme & Localization
+  flutter_secure_storage: ^9.0.0
+  lottie: ^2.7.0
+  animated_text_kit: ^4.2.1
+  shimmer: ^3.0.0
+  package_info_plus: ^4.2.0
+  device_info_plus: ^9.1.1
+  url_launcher: ^6.2.1
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -60,3 +69,16 @@ flutter:
     - assets/templates/
     - assets/images/
     - assets/icons/
+    - assets/fonts/
+
+  
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700

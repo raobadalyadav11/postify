@@ -182,9 +182,8 @@ class _DonationScreenState extends State<DonationScreen> {
                   borderRadius: BorderRadius.circular(16),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: isSelected
-                          ? AppTheme.primaryColor
-                          : Colors.grey[50],
+                      color:
+                          isSelected ? AppTheme.primaryColor : Colors.grey[50],
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isSelected
@@ -247,7 +246,8 @@ class _DonationScreenState extends State<DonationScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide(color: AppTheme.primaryColor, width: 2),
+                borderSide:
+                    const BorderSide(color: AppTheme.primaryColor, width: 2),
               ),
             ),
             onChanged: (value) {
@@ -344,9 +344,11 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(height: 20),
           GetBuilder<AdsController>(
             builder: (controller) => ElevatedButton.icon(
-              onPressed: controller.isRewardedAdLoaded ? _watchRewardedAd : null,
+              onPressed:
+                  controller.isRewardedAdLoaded ? _watchRewardedAd : null,
               icon: const Icon(Icons.play_arrow),
-              label: Text(controller.isRewardedAdLoaded ? 'Watch Ad' : 'Loading...'),
+              label: Text(
+                  controller.isRewardedAdLoaded ? 'Watch Ad' : 'Loading...'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.successColor,
                 foregroundColor: Colors.white,
@@ -414,7 +416,8 @@ class _DonationScreenState extends State<DonationScreen> {
     );
   }
 
-  Widget _buildBenefitItem(IconData icon, String title, String description, bool isTablet) {
+  Widget _buildBenefitItem(
+      IconData icon, String title, String description, bool isTablet) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(

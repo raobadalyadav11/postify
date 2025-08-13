@@ -183,7 +183,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               child: Text(
                 controller.currentUser != null ? 'Verified User' : 'Guest User',
-                style: TextStyle(
+                style: const TextStyle(
                   color: AppTheme.primaryColor,
                   fontWeight: FontWeight.w600,
                   fontSize: 12,
@@ -346,7 +346,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildActionCard(String title, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildActionCard(
+      String title, IconData icon, Color color, VoidCallback onTap) {
     return Material(
       color: Colors.transparent,
       child: InkWell(

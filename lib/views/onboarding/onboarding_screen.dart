@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../../constants/app_theme.dart';
 import '../auth/login_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -15,69 +17,51 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<OnboardingPage> _pages = [
     OnboardingPage(
-      title: 'Create Amazing Posters',
-      description: 'Design stunning political and festival posters with our easy-to-use tools',
-      image: Icons.campaign,
-      color: Colors.blue,
+      title: 'Create Stunning Posters',
+      description: 'Design professional political and festival posters with ease using our powerful editor.',
+      icon: Icons.design_services,
     ),
     OnboardingPage(
-      title: 'Professional Templates',
-      description: 'Choose from hundreds of professionally designed templates',
-      image: Icons.palette,
-      color: Colors.orange,
+      title: 'Offline Support',
+      description: 'Work anywhere, anytime. All features work offline with automatic sync when online.',
+      icon: Icons.offline_bolt,
     ),
     OnboardingPage(
       title: 'Share Instantly',
-      description: 'Export and share your creations on social media platforms',
-      image: Icons.share,
-      color: Colors.green,
-    ),
-    OnboardingPage(
-      title: 'Work Offline',
-      description: 'Create and edit posters even without internet connection',
-      image: Icons.offline_bolt,
-      color: Colors.purple,
+      description: 'Export and share your creations directly to social media platforms.',
+      icon: Icons.share,
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentPage = index;
-                });
-              },
-              itemCount: _pages.length,
-              itemBuilder: (context, index) {
-                return _buildPage(_pages[index]);
-              },
-            ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: AppTheme.primaryGradientDecoration,
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: (index) => setState(() => _currentPage = index),
+                  itemCount: _pages.length,
+                  itemBuilder: (context, index) => _buildPage(_pages[index]),
+                ),
+              ),
+              _buildBottomSection(),
+            ],
           ),
-          _buildBottomSection(),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildPage(OnboardingPage page) {
-    return Container(
-      padding: const EdgeInsets.all(40),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            page.color.withOpacity(0.1),
-            Colors.white,
-          ],
-        ),
-      ),
+    return Padding(
+      padding: const EdgeInsets.all(32),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -85,30 +69,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             width: 120,
             height: 120,
             decoration: BoxDecoration(
-              color: page.color,
-              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(30),
             ),
             child: Icon(
-              page.image,
+              page.icon,
               size: 60,
               color: Colors.white,
             ),
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 48),
           Text(
             page.title,
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           Text(
             page.description,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
-              color: Colors.grey[600],
+              color: Colors.white70,
+              height: 1.5,
             ),
             textAlign: TextAlign.center,
           ),
@@ -118,8 +104,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Widget _buildBottomSection() {
-    return Container(
-      padding: const EdgeInsets.all(20),
+    return Padding(
+      padding: const EdgeInsets.all(32),
       child: Column(
         children: [
           Row(
@@ -132,41 +118,55 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 height: 8,
                 decoration: BoxDecoration(
                   color: _currentPage == index
-                      ? Theme.of(context).primaryColor
-                      : Colors.grey[300],
+                      ? Colors.white
+                      : Colors.white.withOpacity(0.4),
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 30),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              TextButton(
-                onPressed: () {
+          const SizedBox(height: 32),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                if (_currentPage < _pages.length - 1) {
+                  _pageController.nextPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                } else {
                   Get.offAll(() => const LoginScreen());
-                },
-                child: const Text('Skip'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  if (_currentPage == _pages.length - 1) {
-                    Get.offAll(() => const LoginScreen());
-                  } else {
-                    _pageController.nextPage(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: AppTheme.primaryColor,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                child: Text(_currentPage == _pages.length - 1 ? 'Get Started' : 'Next'),
               ),
-            ],
+              child: Text(
+                _currentPage < _pages.length - 1 ? 'Next' : 'get_started'.tr,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ),
+          if (_currentPage < _pages.length - 1)
+            TextButton(
+              onPressed: () => Get.offAll(() => const LoginScreen()),
+              child: const Text(
+                'Skip',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 14,
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -176,13 +176,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 class OnboardingPage {
   final String title;
   final String description;
-  final IconData image;
-  final Color color;
+  final IconData icon;
 
   OnboardingPage({
     required this.title,
     required this.description,
-    required this.image,
-    required this.color,
+    required this.icon,
   });
 }

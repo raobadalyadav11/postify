@@ -41,35 +41,39 @@ class EditorToolbar extends StatelessWidget {
         children: [
           // Tool Selection
           Container(
-            height: 60,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            height: 55,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Row(
               children: [
                 _buildToolButton('text', Icons.text_fields, 'Text'),
                 _buildToolButton('image', Icons.image, 'Image'),
                 _buildToolButton('shape', Icons.crop_square, 'Shape'),
                 _buildToolButton('sticker', Icons.emoji_emotions, 'Sticker'),
-                const Spacer(),
-                IconButton(
-                  icon: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: selectedColor,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.grey),
+                SizedBox(
+                  width: 40,
+                  child: IconButton(
+                    icon: Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: selectedColor,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.grey, width: 1),
+                      ),
                     ),
+                    onPressed: onColorPicker,
+                    padding: EdgeInsets.zero,
                   ),
-                  onPressed: onColorPicker,
                 ),
               ],
             ),
           ),
           // Tool Options
-          Container(
-            height: 60,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: _buildToolOptions(),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: _buildToolOptions(),
+            ),
           ),
         ],
       ),
@@ -78,34 +82,39 @@ class EditorToolbar extends StatelessWidget {
 
   Widget _buildToolButton(String tool, IconData icon, String label) {
     final isSelected = selectedTool == tool;
-    return Padding(
-      padding: const EdgeInsets.only(right: 16),
+    return Expanded(
       child: GestureDetector(
         onTap: () => onToolChanged(tool),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: isSelected ? Colors.blue : Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: isSelected ? Colors.blue : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  color: isSelected ? Colors.white : Colors.grey[600],
+                  size: 18,
+                ),
               ),
-              child: Icon(
-                icon,
-                color: isSelected ? Colors.white : Colors.grey[600],
-                size: 20,
+              const SizedBox(height: 2),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 9,
+                  color: isSelected ? Colors.blue : Colors.grey[600],
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                color: isSelected ? Colors.blue : Colors.grey[600],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -195,23 +204,26 @@ class EditorToolbar extends StatelessWidget {
   }
 
   Widget _buildShapeButton(IconData icon, String shape) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 16),
+    return Expanded(
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           IconButton(
             onPressed: () {
               onAddShape?.call(shape, selectedColor);
             },
-            icon: Icon(icon),
+            icon: Icon(icon, size: 20),
             style: IconButton.styleFrom(
               backgroundColor: selectedColor.withOpacity(0.1),
+              padding: const EdgeInsets.all(8),
             ),
           ),
           Text(
             shape.toUpperCase(),
-            style: const TextStyle(fontSize: 10),
+            style: const TextStyle(fontSize: 8),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -230,9 +242,9 @@ class EditorToolbar extends StatelessWidget {
   }
 
   Widget _buildStickerButton(String emoji, String label) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 16),
+    return Expanded(
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           GestureDetector(
@@ -240,7 +252,7 @@ class EditorToolbar extends StatelessWidget {
               onAddSticker?.call(emoji);
             },
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
@@ -255,14 +267,16 @@ class EditorToolbar extends StatelessWidget {
               ),
               child: Text(
                 emoji,
-                style: const TextStyle(fontSize: 20),
+                style: const TextStyle(fontSize: 16),
               ),
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(fontSize: 10),
+            style: const TextStyle(fontSize: 8),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

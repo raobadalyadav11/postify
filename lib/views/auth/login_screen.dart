@@ -12,7 +12,8 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen>
+    with TickerProviderStateMixin {
   final AuthController _authController = Get.find<AuthController>();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _otpController = TextEditingController();
@@ -33,7 +34,8 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic));
+    ).animate(CurvedAnimation(
+        parent: _animationController, curve: Curves.easeOutCubic));
     _animationController.forward();
   }
 
@@ -171,12 +173,12 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                     FilteringTextInputFormatter.digitsOnly,
                     LengthLimitingTextInputFormatter(10),
                   ],
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Phone Number',
                     hintText: '9876543210',
-                    prefixIcon: const Icon(Icons.phone),
+                    prefixIcon: Icon(Icons.phone),
                     prefixText: '+91 ',
-                    prefixStyle: const TextStyle(
+                    prefixStyle: TextStyle(
                       color: Colors.black87,
                       fontWeight: FontWeight.w500,
                     ),
@@ -197,12 +199,14 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
                       : const Text(
                           'Send OTP',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600),
                         ),
                 ),
               ] else ...[
@@ -259,12 +263,14 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
                       : const Text(
                           'Verify OTP',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600),
                         ),
                 ),
                 const SizedBox(height: 16),
@@ -315,8 +321,9 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
       _showError('Please enter a valid 10-digit phone number');
       return;
     }
-    
-    final success = await _authController.sendOtp('+91${_phoneController.text}');
+
+    final success =
+        await _authController.sendOtp('+91${_phoneController.text}');
     if (!success) {
       _showError('Failed to send OTP. Please try again.');
     }
@@ -327,7 +334,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
       _showError('Please enter the 6-digit OTP');
       return;
     }
-    
+
     final success = await _authController.verifyOtp(_otpController.text);
     if (!success) {
       _showError('Invalid OTP. Please try again.');

@@ -25,9 +25,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final AuthController _authController = Get.find<AuthController>();
-  final PosterController _posterController = Get.find<PosterController>();
+  // final PosterController _posterController = Get.find<PosterController>();
   final TemplateController _templateController = Get.find<TemplateController>();
-  
+
   BannerAd? _bannerAd;
   bool _isBannerAdReady = false;
 
@@ -317,7 +317,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildActionCard(String title, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildActionCard(
+      String title, IconData icon, Color color, VoidCallback onTap) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -433,9 +434,9 @@ class _HomeScreenState extends State<HomeScreen> {
         GetBuilder<PosterController>(
           builder: (controller) {
             if (controller.isLoading) {
-              return Container(
+              return const SizedBox(
                 height: 200,
-                child: const Center(
+                child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -449,7 +450,7 @@ class _HomeScreenState extends State<HomeScreen> {
             }
 
             final posters = controller.posters.take(isTablet ? 6 : 4).toList();
-            
+
             if (posters.isEmpty) {
               return Container(
                 padding: const EdgeInsets.all(32),
@@ -467,7 +468,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: AppTheme.primaryColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.image_outlined,
                         size: 40,
                         color: AppTheme.primaryColor,
@@ -493,11 +494,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton.icon(
-                      onPressed: () => Get.to(() => const TemplateSelectionScreen()),
+                      onPressed: () =>
+                          Get.to(() => const TemplateSelectionScreen()),
                       icon: const Icon(Icons.add),
                       label: const Text('Create Poster'),
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
                       ),
                     ),
                   ],
