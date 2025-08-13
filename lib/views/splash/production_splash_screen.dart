@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../constants/app_theme.dart';
@@ -74,37 +74,100 @@ class _ProductionSplashScreenState extends State<ProductionSplashScreen>
   }
 
   void _initializeApp() async {
-    final steps = [
-      {'text': 'Loading resources...', 'delay': 500},
-      {'text': 'Checking connectivity...', 'delay': 800},
-      {'text': 'Initializing services...', 'delay': 600},
-      {'text': 'Setting up preferences...', 'delay': 700},
-      {'text': 'Almost ready...', 'delay': 500},
-    ];
+    try {
+      final steps = [
+        {'text': 'Loading resources...', 'delay': 500},
+        {'text': 'Checking connectivity...', 'delay': 800},
+        {'text': 'Initializing services...', 'delay': 600},
+        {'text': 'Setting up preferences...', 'delay': 700},
+        {'text': 'Almost ready...', 'delay': 500},
+      ];
 
-    for (var step in steps) {
-      await Future.delayed(Duration(milliseconds: step['delay'] as int));
+      for (var step in steps) {
+        await Future.delayed(Duration(milliseconds: step['delay'] as int));
+        if (mounted) {
+          setState(() => _loadingText = step['text'] as String);
+        }
+      }
+
+      // Initialize controllers if not already initialized
+      try {
+        Get.find<AuthController>();
+      } catch (e) {
+        Get.put(AuthController());
+      }
+
+      try {
+        Get.find<ThemeController>();
+      } catch (e) {
+        Get.put(ThemeController());
+      }
+
+      await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {
-        setState(() => _loadingText = step['text'] as String);
+        _navigateToNextScreen();
+      }
+    } catch (e) {
+      debugPrint('Initialization error: $e');
+      // Fallback initialization
+      await Future.delayed(const Duration(milliseconds: 2000));
+      if (mounted) {
+        _navigateToNextScreen();
       }
     }
-
-    await Future.delayed(const Duration(milliseconds: 500));
-    _navigateToNextScreen();
   }
 
-  void _navigateToNextScreen() {
-    final authController = Get.find<AuthController>();
+  void _navigateToNextScreen() async {
+    try {
+      final authController = Get.find<AuthController>();
 
-    // Add haptic feedback
-    HapticFeedback.lightImpact();
+      // Add haptic feedback
+      HapticFeedback.lightImpact();
 
-    if (authController.isAuthenticated) {
-      Get.offAll(() => const HomeScreen(), transition: Transition.fadeIn);
-    } else if (authController.isFirstTime) {
+      // Check first time user
+      final prefs = await SharedPreferences.getInstance();
+      final isFirstTime = prefs.getBool('first_time') ?? true;
+
+      if (isFirstTime) {
+        await prefs.setBool('first_time', false);
+        Get.offAll(() => const OnboardingScreen(),
+            transition: Transition.fadeIn);
+      } else if (authController.isAuthenticated) {
+        Get.offAll(() => const HomeScreen(), transition: Transition.fadeIn);
+      } else {
+        Get.offAll(() => const LoginScreen(), transition: Transition.fadeIn);
+      }
+    } catch (e) {
+      // Fallback navigation in case of error
+      debugPrint('Navigation error: $e');
       Get.offAll(() => const OnboardingScreen(), transition: Transition.fadeIn);
-    } else {
-      Get.offAll(() => const LoginScreen(), transition: Transition.fadeIn);
+    }
+  }
+
+  LinearGradient _getThemeGradient() {
+    try {
+      final themeController = Get.find<ThemeController>();
+      return themeController.isDarkMode
+          ? const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF1F2937),
+                Color(0xFF111827),
+              ],
+            )
+          : AppTheme.primaryGradientDecoration;
+    } catch (e) {
+      // Fallback gradient if theme controller is not available
+      return const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFF2196F3),
+          Color(0xFF1976D2),
+          Color(0xFF0D47A1),
+        ],
+      );
     }
   }
 
@@ -121,16 +184,7 @@ class _ProductionSplashScreenState extends State<ProductionSplashScreen>
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          gradient: Get.find<ThemeController>().isDarkMode
-              ? const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF1F2937),
-                    Color(0xFF111827),
-                  ],
-                )
-              : AppTheme.primaryGradientDecoration,
+          gradient: _getThemeGradient(),
         ),
         child: SafeArea(
           child: Column(

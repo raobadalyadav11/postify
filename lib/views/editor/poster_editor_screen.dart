@@ -232,6 +232,10 @@ class _PosterEditorScreenState extends State<PosterEditorScreen>
                       elements: controller.elements,
                       onElementTap: controller.selectElement,
                       onElementMove: controller.moveElement,
+                      onElementResize: controller.resizeElement,
+                      onElementRotate: controller.rotateElement,
+                      onElementDelete: controller.deleteElement,
+                      onElementDuplicate: controller.duplicateElement,
                       canvasWidth: controller.canvasWidth,
                       canvasHeight: controller.canvasHeight,
                     ),
@@ -266,7 +270,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen>
           onColorPicker: () {},
           onAddText: (text) => _addText(),
           onAddShape: (shape, color) => _addShape(),
-          onAddSticker: (sticker) {},
+          onAddSticker: (sticker) => _addSticker(sticker),
         ),
       ),
     );
@@ -374,6 +378,10 @@ class _PosterEditorScreenState extends State<PosterEditorScreen>
     _showShapeSelector();
   }
 
+  void _addSticker(String sticker) {
+    _editorController.addStickerElement(sticker);
+  }
+
   void _changeColor(Color color) {
     _editorController.changeElementColor(color);
   }
@@ -395,21 +403,7 @@ class _PosterEditorScreenState extends State<PosterEditorScreen>
   }
 
   Future<void> _savePoster() async {
-    final poster = _posterController.currentPoster;
-    if (poster != null) {
-      final updatedPoster = poster.copyWith(
-        customizations: {
-          ...poster.customizations,
-          'elements':
-              _editorController.elements.map((e) => e.toJson()).toList(),
-          'canvasSize': {
-            'width': _editorController.canvasWidth,
-            'height': _editorController.canvasHeight,
-          },
-        },
-      );
-      await _posterController.updatePoster(updatedPoster);
-    }
+    await _editorController.savePosterManually();
   }
 
   void _exportPoster() async {

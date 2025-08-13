@@ -38,9 +38,8 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen>
 
   @override
   void dispose() {
-    _searchController?.dispose();
-    _searchController = null;
     _animationController.dispose();
+    _searchController?.dispose();
     super.dispose();
   }
 
@@ -230,9 +229,7 @@ class _TemplateSelectionScreenState extends State<TemplateSelectionScreen>
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         ),
         onChanged: (value) {
-          if (_searchController != null) {
-            _templateController.searchTemplates(value);
-          }
+          _templateController.searchTemplates(value);
         },
       ),
     );

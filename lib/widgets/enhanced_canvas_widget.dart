@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:math' as math;
+import 'package:get/get.dart';
 
 import '../controllers/editor_controller.dart';
+import 'text_editor_dialog.dart';
 
 class EnhancedCanvasWidget extends StatefulWidget {
   final List<EditorElement> elements;
   final Function(EditorElement) onElementTap;
   final Function(EditorElement, double, double) onElementMove;
+  final Function(EditorElement, double, double)? onElementResize;
+  final Function(EditorElement, double)? onElementRotate;
+  final Function(EditorElement)? onElementDelete;
+  final Function(EditorElement)? onElementDuplicate;
   final double canvasWidth;
   final double canvasHeight;
 
@@ -16,6 +22,10 @@ class EnhancedCanvasWidget extends StatefulWidget {
     required this.elements,
     required this.onElementTap,
     required this.onElementMove,
+    this.onElementResize,
+    this.onElementRotate,
+    this.onElementDelete,
+    this.onElementDuplicate,
     this.canvasWidth = 1080,
     this.canvasHeight = 1920,
   });
@@ -27,6 +37,8 @@ class EnhancedCanvasWidget extends StatefulWidget {
 class _EnhancedCanvasWidgetState extends State<EnhancedCanvasWidget> {
   EditorElement? _selectedElement;
   Offset? _lastPanPosition;
+  bool _isResizing = false;
+  bool _isRotating = false;
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +100,11 @@ class _EnhancedCanvasWidgetState extends State<EnhancedCanvasWidget> {
           });
           widget.onElementTap(element);
         },
+        onDoubleTap: () {
+          if (element.type == 'text') {
+            _showTextEditDialog(element);
+          }
+        },
         onPanStart: (details) {
           setState(() {
             _selectedElement = element;
@@ -113,6 +130,13 @@ class _EnhancedCanvasWidgetState extends State<EnhancedCanvasWidget> {
   }
 
   Widget _buildElementContent(EditorElement element) {
+    return Opacity(
+      opacity: element.opacity,
+      child: _buildElementWidget(element),
+    );
+  }
+
+  Widget _buildElementWidget(EditorElement element) {
     switch (element.type) {
       case 'text':
         return Container(
@@ -123,11 +147,12 @@ class _EnhancedCanvasWidgetState extends State<EnhancedCanvasWidget> {
           ),
           child: Text(
             element.content,
+            textAlign: element.textAlign ?? TextAlign.center,
             style: TextStyle(
               fontSize: element.fontSize ?? 16,
               color: element.color,
               fontFamily: element.fontFamily,
-              fontWeight: FontWeight.w500,
+              fontWeight: element.fontWeight ?? FontWeight.w500,
               shadows: [
                 Shadow(
                   color: Colors.black.withOpacity(0.3),
@@ -187,8 +212,8 @@ class _EnhancedCanvasWidgetState extends State<EnhancedCanvasWidget> {
           height: element.height,
           decoration: BoxDecoration(
             color: element.color,
-            shape: element.content == 'circle' 
-                ? BoxShape.circle 
+            shape: element.content == 'circle'
+                ? BoxShape.circle
                 : BoxShape.rectangle,
             borderRadius: element.content == 'rectangle'
                 ? BorderRadius.circular(8)
@@ -209,13 +234,61 @@ class _EnhancedCanvasWidgetState extends State<EnhancedCanvasWidget> {
                   painter: StarPainter(element.color),
                   size: Size(element.width, element.height),
                 )
-              : null,
+              : element.content == 'triangle'
+                  ? CustomPaint(
+                      painter: TrianglePainter(element.color),
+                      size: Size(element.width, element.height),
+                    )
+                  : null,
+        );
+
+      case 'sticker':
+        return Container(
+          width: element.width,
+          height: element.height,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: element.isSelected
+                ? Border.all(color: Colors.blue, width: 2)
+                : null,
+          ),
+          child: Center(
+            child: Text(
+              element.content,
+              style: TextStyle(
+                fontSize: element.width * 0.6, // Scale with element size
+              ),
+            ),
+          ),
+        );
+
+      case 'group':
+        return Container(
+          width: element.width,
+          height: element.height,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: element.isSelected
+                  ? Colors.blue
+                  : Colors.grey.withOpacity(0.5),
+              width: 2,
+              style: BorderStyle.solid,
+            ),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(
+            child: Icon(
+              Icons.group_work,
+              color: Colors.grey[600],
+              size: math.min(element.width, element.height) * 0.3,
+            ),
+          ),
         );
 
       default:
         return Container(
-          width: 50,
-          height: 50,
+          width: element.width,
+          height: element.height,
           color: Colors.grey[300],
           child: const Icon(Icons.help_outline),
         );
@@ -223,12 +296,15 @@ class _EnhancedCanvasWidgetState extends State<EnhancedCanvasWidget> {
   }
 
   Widget _buildSelectionOverlay(EditorElement element) {
+    final elementWidth = _getElementWidth(element);
+    final elementHeight = _getElementHeight(element);
+
     return Positioned(
       left: element.x - 4,
       top: element.y - 4,
       child: Container(
-        width: _getElementWidth(element) + 8,
-        height: _getElementHeight(element) + 8,
+        width: elementWidth + 8,
+        height: elementHeight + 8,
         decoration: BoxDecoration(
           border: Border.all(
             color: Colors.blue,
@@ -238,11 +314,58 @@ class _EnhancedCanvasWidgetState extends State<EnhancedCanvasWidget> {
         ),
         child: Stack(
           children: [
-            // Corner handles
-            _buildCornerHandle(Alignment.topLeft),
-            _buildCornerHandle(Alignment.topRight),
-            _buildCornerHandle(Alignment.bottomLeft),
-            _buildCornerHandle(Alignment.bottomRight),
+            // Corner resize handles
+            _buildResizeHandle(Alignment.topLeft, 'tl', element),
+            _buildResizeHandle(Alignment.topRight, 'tr', element),
+            _buildResizeHandle(Alignment.bottomLeft, 'bl', element),
+            _buildResizeHandle(Alignment.bottomRight, 'br', element),
+
+            // Edge resize handles
+            _buildResizeHandle(Alignment.topCenter, 't', element),
+            _buildResizeHandle(Alignment.bottomCenter, 'b', element),
+            _buildResizeHandle(Alignment.centerLeft, 'l', element),
+            _buildResizeHandle(Alignment.centerRight, 'r', element),
+
+            // Rotation handle
+            Positioned(
+              top: -30,
+              left: (elementWidth + 8) / 2 - 12,
+              child: GestureDetector(
+                onPanStart: (details) {
+                  _isRotating = true;
+                },
+                onPanUpdate: (details) {
+                  if (_isRotating) {
+                    final center = Offset(
+                      element.x + elementWidth / 2,
+                      element.y + elementHeight / 2,
+                    );
+                    final angle = math.atan2(
+                      details.globalPosition.dy - center.dy,
+                      details.globalPosition.dx - center.dx,
+                    );
+                    widget.onElementRotate?.call(element, angle);
+                  }
+                },
+                onPanEnd: (details) {
+                  _isRotating = false;
+                },
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: const BoxDecoration(
+                    color: Colors.orange,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.rotate_right,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ),
+              ),
+            ),
+
             // Delete button
             Positioned(
               top: -12,
@@ -264,6 +387,7 @@ class _EnhancedCanvasWidgetState extends State<EnhancedCanvasWidget> {
                 ),
               ),
             ),
+
             // Duplicate button
             Positioned(
               top: -12,
@@ -291,18 +415,97 @@ class _EnhancedCanvasWidgetState extends State<EnhancedCanvasWidget> {
     );
   }
 
-  Widget _buildCornerHandle(Alignment alignment) {
+  Widget _buildResizeHandle(
+      Alignment alignment, String handle, EditorElement element) {
     return Align(
       alignment: alignment,
-      child: Container(
-        width: 12,
-        height: 12,
-        decoration: const BoxDecoration(
-          color: Colors.blue,
-          shape: BoxShape.circle,
+      child: GestureDetector(
+        onPanStart: (details) {
+          _isResizing = true;
+        },
+        onPanUpdate: (details) {
+          if (_isResizing) {
+            _handleResize(element, details.delta, handle);
+          }
+        },
+        onPanEnd: (details) {
+          _isResizing = false;
+        },
+        child: Container(
+          width: 12,
+          height: 12,
+          decoration: const BoxDecoration(
+            color: Colors.blue,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 2,
+                offset: Offset(0, 1),
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  void _handleResize(EditorElement element, Offset delta, String handle) {
+    double newWidth = element.width;
+    double newHeight = element.height;
+    double newX = element.x;
+    double newY = element.y;
+
+    switch (handle) {
+      case 'tl': // Top-left
+        newWidth = (element.width - delta.dx).clamp(20.0, widget.canvasWidth);
+        newHeight =
+            (element.height - delta.dy).clamp(20.0, widget.canvasHeight);
+        newX = element.x + (element.width - newWidth);
+        newY = element.y + (element.height - newHeight);
+        break;
+      case 'tr': // Top-right
+        newWidth = (element.width + delta.dx).clamp(20.0, widget.canvasWidth);
+        newHeight =
+            (element.height - delta.dy).clamp(20.0, widget.canvasHeight);
+        newY = element.y + (element.height - newHeight);
+        break;
+      case 'bl': // Bottom-left
+        newWidth = (element.width - delta.dx).clamp(20.0, widget.canvasWidth);
+        newHeight =
+            (element.height + delta.dy).clamp(20.0, widget.canvasHeight);
+        newX = element.x + (element.width - newWidth);
+        break;
+      case 'br': // Bottom-right
+        newWidth = (element.width + delta.dx).clamp(20.0, widget.canvasWidth);
+        newHeight =
+            (element.height + delta.dy).clamp(20.0, widget.canvasHeight);
+        break;
+      case 't': // Top
+        newHeight =
+            (element.height - delta.dy).clamp(20.0, widget.canvasHeight);
+        newY = element.y + (element.height - newHeight);
+        break;
+      case 'b': // Bottom
+        newHeight =
+            (element.height + delta.dy).clamp(20.0, widget.canvasHeight);
+        break;
+      case 'l': // Left
+        newWidth = (element.width - delta.dx).clamp(20.0, widget.canvasWidth);
+        newX = element.x + (element.width - newWidth);
+        break;
+      case 'r': // Right
+        newWidth = (element.width + delta.dx).clamp(20.0, widget.canvasWidth);
+        break;
+    }
+
+    // Update element properties
+    element.width = newWidth;
+    element.height = newHeight;
+    element.x = newX;
+    element.y = newY;
+
+    widget.onElementResize?.call(element, newWidth, newHeight);
   }
 
   double _getElementWidth(EditorElement element) {
@@ -311,9 +514,11 @@ class _EnhancedCanvasWidgetState extends State<EnhancedCanvasWidget> {
         return element.content.length * (element.fontSize ?? 16) * 0.6;
       case 'image':
       case 'shape':
+      case 'sticker':
+      case 'group':
         return element.width;
       default:
-        return 100;
+        return element.width;
     }
   }
 
@@ -323,21 +528,44 @@ class _EnhancedCanvasWidgetState extends State<EnhancedCanvasWidget> {
         return (element.fontSize ?? 16) * 1.5;
       case 'image':
       case 'shape':
+      case 'sticker':
+      case 'group':
         return element.height;
       default:
-        return 50;
+        return element.height;
     }
   }
 
   void _deleteElement(EditorElement element) {
-    // This would be handled by the parent controller
+    widget.onElementDelete?.call(element);
     setState(() {
       _selectedElement = null;
     });
   }
 
   void _duplicateElement(EditorElement element) {
-    // This would be handled by the parent controller
+    widget.onElementDuplicate?.call(element);
+  }
+
+  void _showTextEditDialog(EditorElement element) {
+    if (element.type != 'text') return;
+
+    showDialog(
+      context: context,
+      builder: (context) => TextEditorDialog(
+        initialText: element.content,
+        initialFontSize: element.fontSize ?? 16,
+        initialColor: element.color,
+        initialFontWeight: element.fontWeight ?? FontWeight.normal,
+        onSave: (text, fontSize, color, fontWeight) {
+          final editorController = Get.find<EditorController>();
+          editorController.updateElementContent(element, text);
+          editorController.changeElementColor(color);
+          editorController.changeElementFontWeight(fontWeight);
+          editorController.changeElementSize(fontSize);
+        },
+      ),
+    );
   }
 }
 
@@ -412,4 +640,28 @@ class StarPainter extends CustomPainter {
 
   double cos(double angle) => math.cos(angle);
   double sin(double angle) => math.sin(angle);
+}
+
+class TrianglePainter extends CustomPainter {
+  final Color color;
+
+  TrianglePainter(this.color);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+    path.moveTo(size.width / 2, 0); // Top point
+    path.lineTo(0, size.height); // Bottom left
+    path.lineTo(size.width, size.height); // Bottom right
+    path.close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

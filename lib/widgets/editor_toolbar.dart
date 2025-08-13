@@ -231,18 +231,27 @@ class EditorToolbar extends StatelessWidget {
   }
 
   Widget _buildStickerOptions() {
-    return Row(
-      children: [
-        _buildStickerButton('😀', 'Happy'),
-        _buildStickerButton('🎉', 'Party'),
-        _buildStickerButton('❤️', 'Love'),
-        _buildStickerButton('👍', 'Like'),
-      ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          _buildStickerButton('😀', 'Happy'),
+          _buildStickerButton('🎉', 'Party'),
+          _buildStickerButton('❤️', 'Love'),
+          _buildStickerButton('👍', 'Like'),
+          _buildStickerButton('🔥', 'Fire'),
+          _buildStickerButton('⭐', 'Star'),
+          _buildStickerButton('🎯', 'Target'),
+          _buildStickerButton('💯', 'Perfect'),
+        ],
+      ),
     );
   }
 
   Widget _buildStickerButton(String emoji, String label) {
-    return Expanded(
+    return Container(
+      width: 60,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -252,7 +261,8 @@ class EditorToolbar extends StatelessWidget {
               onAddSticker?.call(emoji);
             },
             child: Container(
-              padding: const EdgeInsets.all(6),
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
@@ -265,9 +275,11 @@ class EditorToolbar extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Text(
-                emoji,
-                style: const TextStyle(fontSize: 16),
+              child: Center(
+                child: Text(
+                  emoji,
+                  style: const TextStyle(fontSize: 20),
+                ),
               ),
             ),
           ),
@@ -277,6 +289,7 @@ class EditorToolbar extends StatelessWidget {
             style: const TextStyle(fontSize: 8),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
           ),
         ],
       ),
