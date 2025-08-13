@@ -46,6 +46,7 @@ class TemplateController extends GetxController {
         _templates.value = templates;
         _applyFilters();
       }
+      update();
     } catch (e) {
       // Load sample templates as fallback
       await _initializeSampleTemplates();
@@ -68,6 +69,7 @@ class TemplateController extends GetxController {
     await batch.commit();
     _templates.value = sampleTemplates;
     _applyFilters();
+    update();
   }
   
   List<TemplateModel> _createSampleTemplates() {
@@ -82,7 +84,7 @@ class TemplateController extends GetxController {
         category: 'Political',
         type: type,
         name: '$type Template',
-        imagePath: 'assets/templates/political_${type.toLowerCase().replaceAll(' ', '_')}.png',
+        imagePath: 'assets/templates/placeholder.png',
         metadata: {
           'textFields': ['title', 'subtitle', 'description'],
           'imageFields': ['candidatePhoto', 'partyLogo'],
@@ -102,7 +104,7 @@ class TemplateController extends GetxController {
         category: 'Festival',
         type: type,
         name: '$type Greeting',
-        imagePath: 'assets/templates/festival_${type.toLowerCase().replaceAll(' ', '_')}.png',
+        imagePath: 'assets/templates/placeholder.png',
         metadata: {
           'textFields': ['greeting', 'message', 'signature'],
           'imageFields': ['festivalImage', 'userPhoto'],
@@ -121,11 +123,13 @@ class TemplateController extends GetxController {
   void filterByCategory(String category) {
     _selectedCategory.value = category;
     _applyFilters();
+    update();
   }
   
   void filterByLanguage(String language) {
     _selectedLanguage.value = language;
     _applyFilters();
+    update();
   }
   
   void _applyFilters() {
@@ -140,6 +144,7 @@ class TemplateController extends GetxController {
     }
     
     _filteredTemplates.value = filtered;
+    update();
   }
   
   void searchTemplates(String query) {
@@ -155,6 +160,7 @@ class TemplateController extends GetxController {
     ).toList();
     
     _filteredTemplates.value = filtered;
+    update();
   }
   
   TemplateModel? getTemplateById(String templateId) {

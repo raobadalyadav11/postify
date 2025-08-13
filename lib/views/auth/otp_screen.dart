@@ -26,7 +26,7 @@ class _OTPScreenState extends State<OTPScreen> {
 
   void _verifyOTP() async {
     if (_formKey.currentState!.validate()) {
-      final success = await _authController.verifyOTP(_otpController.text);
+      final success = await _authController.verifyOtp(_otpController.text);
       if (success) {
         Get.offAll(() => const HomeScreen());
       }
@@ -91,7 +91,7 @@ class _OTPScreenState extends State<OTPScreen> {
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () {
-                  _authController.verifyPhoneNumber(widget.phoneNumber);
+                  _authController.sendOtp(widget.phoneNumber);
                 },
                 child: const Text('Resend OTP'),
               ),

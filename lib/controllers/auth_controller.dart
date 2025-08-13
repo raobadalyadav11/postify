@@ -51,32 +51,42 @@ class AuthController extends GetxController {
   }
   
   String? _verificationId;
+  final RxBool _isOtpSent = false.obs;
   
-  Future<void> verifyPhoneNumber(String phoneNumber) async {
+  bool get isOtpSent => _isOtpSent.value;
+  
+  Future<bool> sendOtp(String phoneNumber) async {
     _isLoading.value = true;
     
-    await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber: '+91$phoneNumber',
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await _signInWithCredential(credential);
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        _isLoading.value = false;
-        Get.snackbar('Error', e.message ?? 'Verification failed');
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        _verificationId = verificationId;
-        _isLoading.value = false;
-        Get.snackbar('Success', 'OTP sent to your phone');
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {
-        _verificationId = verificationId;
-        _isLoading.value = false;
-      },
-    );
+    try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await _signInWithCredential(credential);
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          _isLoading.value = false;
+          Get.snackbar('Error', e.message ?? 'Verification failed');
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          _verificationId = verificationId;
+          _isOtpSent.value = true;
+          _isLoading.value = false;
+          update();
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          _verificationId = verificationId;
+          _isLoading.value = false;
+        },
+      );
+      return true;
+    } catch (e) {
+      _isLoading.value = false;
+      return false;
+    }
   }
   
-  Future<bool> verifyOTP(String otp) async {
+  Future<bool> verifyOtp(String otp) async {
     if (_verificationId == null) return false;
     
     _isLoading.value = true;
@@ -90,11 +100,15 @@ class AuthController extends GetxController {
       await _signInWithCredential(credential);
       return true;
     } catch (e) {
-      Get.snackbar('Error', 'Invalid OTP');
       return false;
     } finally {
       _isLoading.value = false;
     }
+  }
+  
+  void continueAsGuest() {
+    _isAuthenticated.value = true;
+    update();
   }
   
   Future<void> _signInWithCredential(PhoneAuthCredential credential) async {
@@ -145,8 +159,7 @@ class AuthController extends GetxController {
   }
   
   Future<bool> signInWithPhone(String phoneNumber) async {
-    await verifyPhoneNumber(phoneNumber);
-    return true;
+    return await sendOtp(phoneNumber);
   }
   
   Future<void> signOut() async {

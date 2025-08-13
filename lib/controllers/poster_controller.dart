@@ -10,6 +10,7 @@ import '../models/template_model.dart';
 import '../services/firebase_service.dart';
 import '../constants/app_constants.dart';
 import 'auth_controller.dart';
+import 'ads_controller.dart';
 
 class PosterController extends GetxController {
   final FirebaseService _firebaseService = FirebaseService.instance;
@@ -27,16 +28,13 @@ class PosterController extends GetxController {
   bool get isSaving => _isSaving.value;
   PosterModel? get currentPoster => _currentPoster.value;
   
-  @override
-  void onInit() {
-    super.onInit();
-    loadUserPosters();
-  }
+
   
   Future<void> loadUserPosters() async {
     if (_authController.currentUser == null) return;
     
     _isLoading.value = true;
+    update();
     
     try {
       final querySnapshot = await _firebaseService.firestore
@@ -56,6 +54,7 @@ class PosterController extends GetxController {
       Get.snackbar('Error', 'Failed to load posters: $e');
     } finally {
       _isLoading.value = false;
+      update();
     }
   }
   
@@ -76,17 +75,18 @@ class PosterController extends GetxController {
   }
   
   Future<PosterModel?> createPoster(TemplateModel template, String name) async {
-    if (_authController.currentUser == null) return null;
-    
     _isSaving.value = true;
     
     try {
       final posterId = const Uuid().v4();
       final now = DateTime.now();
       
+      // Create poster with or without user authentication
+      final userId = _authController.currentUser?.userId ?? 'guest_${DateTime.now().millisecondsSinceEpoch}';
+      
       final poster = PosterModel(
         posterId: posterId,
-        userId: _authController.currentUser!.userId,
+        userId: userId,
         templateId: template.templateId,
         name: name,
         customizations: {
@@ -99,16 +99,21 @@ class PosterController extends GetxController {
         updatedAt: now,
       );
       
-      await _firebaseService.setDocument(
-        AppConstants.postersCollection,
-        posterId,
-        poster.toJson(),
-      );
+      // Save to Firebase if user is authenticated, otherwise save locally
+      if (_authController.currentUser != null) {
+        await _firebaseService.setDocument(
+          AppConstants.postersCollection,
+          posterId,
+          poster.toJson(),
+        );
+      }
       
       _posters.insert(0, poster);
       _filteredPosters.insert(0, poster);
       _currentPoster.value = poster;
+      update();
       
+      Get.snackbar('Success', 'Poster created successfully');
       return poster;
     } catch (e) {
       Get.snackbar('Error', 'Failed to create poster: $e');
@@ -160,6 +165,7 @@ class PosterController extends GetxController {
       
       _posters.removeWhere((p) => p.posterId == posterId);
       _filteredPosters.removeWhere((p) => p.posterId == posterId);
+      update();
       
       Get.snackbar('Success', 'Poster deleted successfully');
     } catch (e) {
@@ -189,8 +195,8 @@ class PosterController extends GetxController {
     try {
       // Show interstitial ad before export
       try {
-        final adsController = Get.find();
-      if (adsController.isInterstitialAdLoaded) {
+        final adsController = Get.find<AdsController>();
+        if (adsController.isInterstitialAdLoaded) {
           adsController.showInterstitialAd();
           await Future.delayed(const Duration(seconds: 1));
         }
@@ -282,14 +288,14 @@ class PosterController extends GetxController {
   void filterPosters(String query) {
     if (query.isEmpty) {
       _filteredPosters.value = _posters;
-      return;
+    } else {
+      final filtered = _posters.where((poster) =>
+          poster.name.toLowerCase().contains(query.toLowerCase())
+      ).toList();
+      
+      _filteredPosters.value = filtered;
     }
-    
-    final filtered = _posters.where((poster) =>
-        poster.name.toLowerCase().contains(query.toLowerCase())
-    ).toList();
-    
-    _filteredPosters.value = filtered;
+    update();
   }
   
   void setCurrentPoster(PosterModel poster) {
@@ -315,6 +321,7 @@ class PosterController extends GetxController {
     
     _posters.insert(0, duplicatedPoster);
     _filteredPosters.insert(0, duplicatedPoster);
+    update();
     
     Get.snackbar('Success', 'Poster duplicated successfully');
   }

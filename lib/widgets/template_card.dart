@@ -15,108 +15,48 @@ class TemplateCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                child: Container(
                   color: Colors.grey[200],
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12),
+                  child: const Icon(
+                    Icons.image,
+                    size: 48,
+                    color: Colors.grey,
                   ),
-                ),
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12),
-                  ),
-                  child: template.imagePath.startsWith('http')
-                      ? Image.network(
-                          template.imagePath,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return _buildPlaceholder();
-                          },
-                        )
-                      : Image.asset(
-                          template.imagePath,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return _buildPlaceholder();
-                          },
-                        ),
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     template.name,
                     style: const TextStyle(
+                      fontWeight: FontWeight.bold,
                       fontSize: 14,
-                      fontWeight: FontWeight.w600,
                     ),
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     template.category,
                     style: TextStyle(
-                      fontSize: 12,
                       color: Colors.grey[600],
+                      fontSize: 12,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: template.isPremium 
-                              ? Colors.orange[100] 
-                              : Colors.green[100],
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          template.isPremium ? 'Premium' : 'Free',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: template.isPremium 
-                                ? Colors.orange[800] 
-                                : Colors.green[800],
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        '${template.width}x${template.height}',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey[500],
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -125,63 +65,5 @@ class TemplateCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Widget _buildPlaceholder() {
-    return Container(
-      color: _getCategoryColor(),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              _getCategoryIcon(),
-              size: 32,
-              color: Colors.white,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              template.type,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Color _getCategoryColor() {
-    switch (template.category) {
-      case 'Political':
-        return Colors.blue;
-      case 'Festival':
-        return Colors.orange;
-      case 'General':
-        return Colors.green;
-      case 'Social Media':
-        return Colors.purple;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  IconData _getCategoryIcon() {
-    switch (template.category) {
-      case 'Political':
-        return Icons.how_to_vote;
-      case 'Festival':
-        return Icons.celebration;
-      case 'General':
-        return Icons.event;
-      case 'Social Media':
-        return Icons.share;
-      default:
-        return Icons.image;
-    }
   }
 }

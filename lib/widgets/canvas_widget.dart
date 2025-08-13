@@ -17,10 +17,10 @@ class CanvasWidget extends StatefulWidget {
   });
 
   @override
-  State<CanvasWidget> createState() => _CanvasWidgetState();
+  State<CanvasWidget> createState() => CanvasWidgetState();
 }
 
-class _CanvasWidgetState extends State<CanvasWidget> {
+class CanvasWidgetState extends State<CanvasWidget> {
   final List<CanvasElement> _elements = [];
   final GlobalKey _canvasKey = GlobalKey();
   CanvasElement? _selectedElement;
