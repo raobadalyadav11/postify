@@ -10,8 +10,8 @@ class SyncService extends GetxService {
   
   final FirebaseService _firebaseService = FirebaseService.instance;
   final OfflineService _offlineService = OfflineService.instance;
-  final ConnectivityService _connectivityService = Get.find<ConnectivityService>();
-  final AuthController _authController = Get.find<AuthController>();
+  ConnectivityService? _connectivityService;
+  AuthController? _authController;
   
   final RxBool _isSyncing = false.obs;
   bool get isSyncing => _isSyncing.value;
@@ -19,7 +19,13 @@ class SyncService extends GetxService {
   @override
   void onInit() {
     super.onInit();
-    _setupConnectivityListener();
+    try {
+      _connectivityService = Get.find<ConnectivityService>();
+      _authController = Get.find<AuthController>();
+      _setupConnectivityListener();
+    } catch (e) {
+      // Services not available yet
+    }
   }
   
   void _setupConnectivityListener() {
@@ -87,7 +93,8 @@ class SyncService extends GetxService {
   }
   
   Future<void> _syncDownFromServer() async {
-    final user = _authController.currentUser;
+    if (_authController == null) return;
+    final user = _authController!.currentUser;
     if (user == null) return;
     
     // Sync posters from server
@@ -105,7 +112,7 @@ class SyncService extends GetxService {
   
   Future<void> forceSyncAll() async {
     try {
-      if (!_connectivityService.isConnected) {
+      if (_connectivityService == null || !_connectivityService!.isConnected) {
         Get.snackbar('No Internet', 'Please check your internet connection');
         return;
       }

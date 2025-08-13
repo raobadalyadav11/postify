@@ -31,13 +31,7 @@ void main() async {
   // Initialize Firebase Service
   await FirebaseService.instance.initialize();
   
-  // Initialize Services
-  Get.put(ConnectivityService());
-  Get.put(PremiumService());
-  Get.put(OfflineService());
-  Get.put(SyncService());
-  
-  // Initialize Controllers
+  // Initialize Controllers first
   Get.put(AuthController());
   Get.put(TemplateController());
   Get.put(PosterController());
@@ -45,6 +39,12 @@ void main() async {
   Get.put(EditorController());
   Get.put(AdsController());
   Get.put(PaymentController());
+  
+  // Initialize Services after controllers
+  Get.put(ConnectivityService());
+  Get.put(OfflineService());
+  Get.put(PremiumService());
+  Get.put(SyncService());
   
   runApp(const PostifyApp());
 }

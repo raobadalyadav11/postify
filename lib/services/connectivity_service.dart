@@ -26,22 +26,28 @@ class ConnectivityService extends GetxController {
   }
   
   void _updateConnectionStatus(ConnectivityResult result) {
+    final wasConnected = _isConnected.value;
     _isConnected.value = result != ConnectivityResult.none;
     
-    if (_isConnected.value) {
-      Get.snackbar(
-        'Connection Restored',
-        'You are back online',
-        snackPosition: SnackPosition.TOP,
-        duration: const Duration(seconds: 2),
-      );
-    } else {
-      Get.snackbar(
-        'No Internet',
-        'Working in offline mode',
-        snackPosition: SnackPosition.TOP,
-        duration: const Duration(seconds: 3),
-      );
+    // Only show snackbars after initial connection check
+    if (wasConnected != _isConnected.value) {
+      Future.delayed(const Duration(seconds: 1), () {
+        if (_isConnected.value) {
+          Get.snackbar(
+            'Connection Restored',
+            'You are back online',
+            snackPosition: SnackPosition.TOP,
+            duration: const Duration(seconds: 2),
+          );
+        } else {
+          Get.snackbar(
+            'No Internet',
+            'Working in offline mode',
+            snackPosition: SnackPosition.TOP,
+            duration: const Duration(seconds: 3),
+          );
+        }
+      });
     }
   }
   

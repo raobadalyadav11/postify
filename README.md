@@ -216,3 +216,152 @@ Processes inputs, updates Model, refreshes View.
 - User-uploaded templates.
 - Video banner support.
 - AR preview for posters.
+
+Based on the provided requirements for the Election and Festival Banner/Poster Making mobile application in Flutter with Firebase, I’ve identified the **features** and **pages/screens** that need to be implemented. Below is a detailed breakdown of the features and pages required to meet the functional and non-functional requirements.
+
+## Features to Be Implemented
+
+The application includes a comprehensive set of features to support poster creation, user management, offline functionality, monetization, and optional AI capabilities. Here’s the complete list of features categorized for clarity:
+
+### 1. User Authentication (2 Features)
+1. **Mobile Number Login**: Users log in by submitting their mobile number; credentials (local token) are auto-generated and stored locally using Firebase Authentication with offline persistence.
+2. **Guest Mode**: Allow users to access the app without immediate login for first-time use, with data saved locally.
+
+### 2. Poster Types (21 Features)
+The app supports 21 distinct poster types, each requiring specific design elements and templates:
+1. **Candidate Introduction**: Name, photo, party symbol, slogan, bio, vision.
+2. **Party Symbol**: Large party logo, slogan, multi-language support.
+3. **Voting Appeal**: “Please Vote for Me,” voting date/time/booth info.
+4. **Manifesto**: Top promises, development agendas, opponent comparisons.
+5. **Polling Day Reminder**: Voting date, voter ID checklist, booth info.
+6. **Victory Celebration**: “Thanks for Voting,” “We Won!” messages.
+7. **Festival Greetings**: Diwali, Holi, Eid, etc., with candidate branding.
+8. **Birthday/Anniversary Wishes**: Wishes for leaders or citizens.
+9. **Rally & Event**: Invitations with date, time, venue, guests.
+10. **Achievements**: Past work (roads, hospitals), before/after images.
+11. **Opposition Criticism**: Fact-based, respectful comparisons.
+12. **Respected Leader Tribute**: Tributes for national leaders’ Jayanti/Punyatithi.
+13. **Constituency Maps**: Region/ward/booth maps with candidate presence.
+14. **Voter List Awareness**: Instructions to check/register voter list.
+15. **Countdown**: Daily countdown to election date.
+16. **Local Language Regional**: Templates in Hindi, Tamil, Bengali, etc.
+17. **Women Empowerment**: Appeals to female voters.
+18. **Youth-Focused**: Messages for first-time voters, job/education promises.
+19. **Booth-Level**: Booth team/volunteer lists.
+20. **Social Media Square**: Instagram/Facebook-friendly 1:1 posters.
+21. **Video Thumbnail**: YouTube/FB Live poster templates.
+
+### 3. Poster Formats (4 Features)
+Support for multiple poster formats, each requiring rendering and export capabilities:
+1. **Portrait**: A4 (2480x3508px), A3 (3508x4961px), 1080x1920px.
+2. **Landscape**: 1920x1080px (Facebook cover), 1200x628px (banner).
+3. **Square**: 1080x1080px (Instagram/WhatsApp).
+4. **Custom Sizes**: User-defined dimensions for flexible poster creation.
+
+### 4. Customization (6 Features)
+1. **Text Customization**: Edit fonts, sizes, colors, and alignment.
+2. **Image Customization**: Upload, resize, rotate, crop user images.
+3. **Logo/Party Symbol Customization**: Add and adjust logos or symbols.
+4. **Color Customization**: Apply custom colors or party-specific themes.
+5. **Filter Application**: Add brightness, contrast, or other image filters.
+6. **Drag-and-Drop Interface**: Intuitive placement of text, images, and logos on the canvas.
+
+### 5. Poster Management (3 Features)
+1. **Edit Posters**: Modify existing posters with full customization options.
+2. **Delete Posters**: Soft delete posters (mark as deleted in Firebase) with a restore option.
+3. **Restore Posters**: Recover deleted posters from local storage.
+
+### 6. Export & Sharing (2 Features)
+1. **Export**: Save posters as PNG/JPEG with compression for storage efficiency.
+2. **Sharing**: Share posters directly to WhatsApp, Instagram, Facebook, etc., via native APIs.
+
+### 7. Multilingual Support (1 Feature)
+1. **Language Support**: Support for Hindi, English, Bengali, Tamil, Telugu, Gujarati, Marathi, Urdu, etc., with auto-detection or manual selection.
+
+### 8. Offline Support (1 Feature)
+1. **Offline Functionality**: All features (authentication, template access, poster management) work offline using Firebase Firestore offline persistence and local file storage.
+
+### 9. Monetization (3 Features)
+1. **Free Access**: All core features are free without restrictions.
+2. **In-App Purchases/Donations**: Optional donations via Razorpay (e.g., for premium templates).
+3. **Google Mobile Ads**: Banner ads (home/editor screens) and interstitial ads (on export/share).
+
+### 10. AI Features (Optional, 4 Features)
+1. **AI Text Suggestion**: Generate slogan suggestions using local ML models (e.g., TensorFlow Lite).
+2. **AI Background Removal**: Automatically remove photo backgrounds.
+3. **Auto-Fit Candidate Face**: Adjust candidate photos to fit template placeholders.
+4. **Party-Color Theme Detection**: Automatically detect and apply party-specific color schemes.
+
+### 11. Performance & Usability (3 Features)
+1. **Fast Loading**: Template loading and rendering in <2 seconds using local storage.
+2. **Intuitive UI**: Simple navigation, large buttons, and tooltips for non-technical users.
+3. **Low Storage Usage**: Optimize templates and assets to use <100MB of device storage.
+
+### 12. Security (2 Features)
+1. **Secure Authentication**: Store credentials securely using Firebase Authentication and encrypted local storage.
+2. **Data Privacy**: Encrypt user data and posters using flutter_secure_storage.
+
+### Total Features
+- **Core Features**: 28 (Authentication: 2, Poster Types: 21, Formats: 4, Customization: 6, Management: 3, Export/Sharing: 2, Multilingual: 1, Offline: 1, Monetization: 3, Performance/Usability: 3, Security: 2)
+- **Optional AI Features**: 4
+- **Total**: 32 (if AI features are included)
+
+## Pages/Screens to Be Implemented
+
+The app requires the following screens to support the features and provide an intuitive user experience. Each screen corresponds to specific functionalities in the MVC architecture’s View layer.
+
+1. **Login Screen**
+   - Purpose: Allow users to log in using their mobile number or access guest mode.
+   - Features: Mobile number input with formatting (flutter_masked_text2), submit button, Firebase Authentication integration.
+   - UI Elements: Text field, submit button, guest mode option.
+
+2. **Home Screen**
+   - Purpose: Display poster categories, types, and user’s saved posters.
+   - Features: Categories (Political, Festival), poster type grid, saved posters list, filter options (party, language), banner ad integration.
+   - UI Elements: Grid view, filter buttons, ad container, navigation bar.
+
+3. **Template Selection Screen**
+   - Purpose: Allow users to browse and select templates by category, party, or language.
+   - Features: Grid view of templates, filters for category/party/language, search bar.
+   - UI Elements: Template thumbnails, filter dropdowns, search input.
+
+4. **Editor Screen**
+   - Purpose: Provide a canvas for creating and editing posters.
+   - Features: Drag-and-drop canvas (flutter_canvas), text/image/logo customization, color picker, filter application, real-time preview, save/export options.
+   - UI Elements: Canvas, toolbar (text, image, logo, filters), preview button, save button.
+
+5. **Poster Management Screen**
+   - Purpose: View, edit, delete, or restore user-created posters.
+   - Features: List of saved posters, edit/delete/restore options, soft deletion logic.
+   - UI Elements: Poster list, action buttons (edit, delete, restore).
+
+6. **Preview & Share Screen**
+   - Purpose: Preview final poster and share/export it.
+   - Features: Full-screen poster preview, export as PNG/JPEG, share via WhatsApp/Instagram/Facebook, interstitial ad on export.
+   - UI Elements: Preview area, export button, share buttons, ad container.
+
+7. **Profile Screen**
+   - Purpose: Manage user account and view saved posters.
+   - Features: Display user details (mobile number, name), list of saved posters, logout option.
+   - UI Elements: User info, poster list, logout button.
+
+8. **Donation Screen**
+   - Purpose: Allow optional in-app donations or purchases.
+   - Features: Razorpay integration for donations (e.g., for premium templates), donation amount selection.
+   - UI Elements: Donation form, payment button, amount options.
+
+### Total Screens
+- **Total**: 8 screens
+
+## Summary
+- **Total Features**: 32 (28 core + 4 optional AI features)
+- **Total Pages/Screens**: 8
+
+## Notes
+- **Feature Implementation**: Each poster type (21) requires distinct template designs but shares the same customization, editing, and sharing logic, reducing development complexity.
+- **Screen Optimization**: Screens like Template Selection and Poster Management can reuse components (e.g., grid view) to streamline development.
+- **Optional AI Features**: These can be implemented later as a phase 2 enhancement, as they are not critical to the core functionality.
+- **Firebase Integration**: Offline persistence and local caching ensure all features work offline, with Firebase Firestore and Storage handling data efficiently.
+- **Monetization**: Ads and donations are non-intrusive, ensuring free access to all core features.
+
+This list covers all required features and screens based on the provided requirements, ensuring the app meets its goals for usability, functionality, and offline support. Let me know if you need further details or assistance with implementation steps!

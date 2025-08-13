@@ -6,7 +6,7 @@ class PremiumService extends GetxService {
   static PremiumService get instance => Get.find<PremiumService>();
   
   final FirebaseService _firebaseService = FirebaseService.instance;
-  final AuthController _authController = Get.find<AuthController>();
+  AuthController? _authController;
   
   final RxBool _isPremium = false.obs;
   final RxInt _premiumTemplatesUnlocked = 0.obs;
@@ -19,11 +19,17 @@ class PremiumService extends GetxService {
   @override
   void onInit() {
     super.onInit();
-    _loadPremiumStatus();
+    try {
+      _authController = Get.find<AuthController>();
+      _loadPremiumStatus();
+    } catch (e) {
+      // AuthController not available yet
+    }
   }
   
   Future<void> _loadPremiumStatus() async {
-    final user = _authController.currentUser;
+    if (_authController == null) return;
+    final user = _authController!.currentUser;
     if (user == null) return;
     
     try {
@@ -44,7 +50,8 @@ class PremiumService extends GetxService {
   }
   
   Future<void> unlockPremiumTemplates(int count) async {
-    final user = _authController.currentUser;
+    if (_authController == null) return;
+    final user = _authController!.currentUser;
     if (user == null) return;
     
     try {
@@ -71,7 +78,8 @@ class PremiumService extends GetxService {
   }
   
   Future<void> removeAds() async {
-    final user = _authController.currentUser;
+    if (_authController == null) return;
+    final user = _authController!.currentUser;
     if (user == null) return;
     
     try {
